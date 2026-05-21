@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>บทที่ 9 — Smart Grid & Digital Substation</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --card: #22263a;
+    --accent: #4f8ef7; --accent2: #f7a94f; --accent3: #4fc97e;
+    --text: #e2e8f0; --muted: #8892a4; --border: #2d3248;
+    --warn: #f74f4f; --purple: #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.7; }
+  a { color: var(--accent); text-decoration: none; }
+
+  /* NAV */
+  nav { position: sticky; top: 0; z-index: 100; background: #0d1020ee; backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border); padding: 0 1rem; display: flex; align-items: center;
+        gap: 0; overflow-x: auto; white-space: nowrap; }
+  nav .logo { font-weight: 700; color: var(--accent); padding: 0.7rem 1rem 0.7rem 0; font-size: 0.9rem; flex-shrink: 0; }
+  nav a { color: var(--muted); font-size: 0.78rem; padding: 0.7rem 0.6rem; transition: color .2s; flex-shrink: 0; }
+  nav a:hover { color: var(--accent); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #1a1d27 0%, #0f1117 60%, #1a2040 100%);
+          border-bottom: 2px solid var(--accent); padding: 3rem 2rem; text-align: center; }
+  .hero h1 { font-size: 2rem; font-weight: 800; color: var(--accent); margin-bottom: 0.5rem; }
+  .hero .sub { color: var(--accent2); font-size: 1.1rem; margin-bottom: 1rem; }
+  .hero p { color: var(--muted); max-width: 700px; margin: 0 auto; }
+
+  /* SUMMARY BOX */
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;
+                  max-width: 960px; margin: 2rem auto; padding: 0 1.5rem; }
+  .s-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+             padding: 1rem; text-align: center; }
+  .s-card .num { font-size: 1.8rem; font-weight: 800; color: var(--accent); }
+  .s-card .lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+  /* SECTIONS */
+  .section { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .section-title { font-size: 1.4rem; font-weight: 700; color: var(--accent2);
+                   border-left: 4px solid var(--accent2); padding-left: 0.8rem;
+                   margin-bottom: 1.5rem; }
+  .section-title span { color: var(--muted); font-weight: 400; font-size: 1rem; margin-left: 0.5rem; }
+
+  h3 { color: var(--accent); font-size: 1.05rem; margin: 1.5rem 0 0.6rem; }
+  h4 { color: var(--accent3); font-size: 0.95rem; margin: 1.2rem 0 0.4rem; }
+  p { margin-bottom: 0.8rem; }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+          padding: 1.2rem; margin-bottom: 1rem; }
+  .card-accent { border-left: 3px solid var(--accent); }
+  .card-warn { border-left: 3px solid var(--warn); }
+  .card-green { border-left: 3px solid var(--accent3); }
+  .card-purple { border-left: 3px solid var(--purple); }
+  .card-orange { border-left: 3px solid var(--accent2); }
+
+  /* GRID 2 */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width: 600px){ .grid2 { grid-template-columns: 1fr; } }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.85rem; }
+  th { background: #1e2236; color: var(--accent2); padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; }
+  td { padding: 0.5rem 0.8rem; border-top: 1px solid var(--border); }
+  tr:hover td { background: #1e2236; }
+
+  /* CODE / FORMULA */
+  .formula { background: #0a0d1a; border: 1px solid var(--accent); border-radius: 8px;
+             padding: 1rem 1.2rem; margin: 0.8rem 0; font-family: 'Courier New', monospace;
+             color: #90cdf4; font-size: 0.95rem; }
+  .formula .comment { color: var(--muted); }
+
+  /* DETAILS */
+  details { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+            margin-bottom: 0.8rem; overflow: hidden; }
+  summary { padding: 0.8rem 1.2rem; cursor: pointer; font-weight: 600; color: var(--accent);
+            list-style: none; display: flex; align-items: center; gap: 0.5rem; }
+  summary::before { content: '▶'; font-size: 0.7rem; transition: transform .2s; }
+  details[open] summary::before { transform: rotate(90deg); }
+  .details-body { padding: 1rem 1.2rem; border-top: 1px solid var(--border); }
+
+  /* BADGE */
+  .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem;
+           font-weight: 600; margin: 0 0.2rem; }
+  .b-blue { background: #1e3a5f; color: #90cdf4; }
+  .b-green { background: #1a3a2a; color: #68d391; }
+  .b-orange { background: #3a2a10; color: #f6ad55; }
+  .b-red { background: #3a1010; color: #fc8181; }
+  .b-purple { background: #2d1e4a; color: #c4b5fd; }
+
+  /* UL / OL */
+  ul, ol { padding-left: 1.5rem; margin-bottom: 0.8rem; }
+  li { margin-bottom: 0.3rem; }
+  li::marker { color: var(--accent2); }
+
+  /* PROTOCOL COMPARE */
+  .proto-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.5rem; margin: 0.8rem 0; }
+  @media(max-width: 600px){ .proto-row { grid-template-columns: 1fr 1fr; } }
+  .proto-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+                padding: 0.8rem; text-align: center; }
+  .proto-card .proto-name { font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+  .proto-card .proto-era { font-size: 0.75rem; color: var(--muted); }
+
+  /* FLOW */
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; margin: 0.8rem 0; }
+  .flow-box { background: var(--card); border: 1px solid var(--accent); border-radius: 6px;
+              padding: 0.3rem 0.7rem; font-size: 0.82rem; }
+  .flow-arrow { color: var(--accent2); font-size: 1rem; }
+
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+  /* FOOTER */
+  footer { background: var(--surface); border-top: 1px solid var(--border); text-align: center;
+           padding: 1.5rem; color: var(--muted); font-size: 0.8rem; margin-top: 3rem; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">บทที่ 9</div>
+  <a href="#s1">Smart Grid</a>
+  <a href="#s2">Thai Power</a>
+  <a href="#s3">SCADA/EMS</a>
+  <a href="#s4">Communication</a>
+  <a href="#s5">Channels</a>
+  <a href="#s6">OSI/TCP-IP</a>
+  <a href="#s7">IEEE 802</a>
+  <a href="#s8">Modbus</a>
+  <a href="#s9">DNP3</a>
+  <a href="#s10">IEC 61850</a>
+  <a href="#s11">Protocol Compare</a>
+  <a href="#s12">Gateway</a>
+  <a href="#s13">Interlocking/SBO</a>
+  <a href="#s14">Umphang EMS</a>
+  <a href="#s15">Mapping</a>
+</nav>
+
+<div class="hero">
+  <h1>บทที่ 9</h1>
+  <div class="sub">Smart Grid and Digital Substation</div>
+  <p>โครงข่ายไฟฟ้าอัจฉริยะและสถานีไฟฟ้าดิจิทัล — SCADA · Communication · Protocols · IEC 61850 · Digital Substation</p>
+</div>
+
+<div class="summary-grid">
+  <div class="s-card"><div class="num">3</div><div class="lbl">SCADA Systems<br>EMS · DAS · HMI</div></div>
+  <div class="s-card"><div class="num">7</div><div class="lbl">OSI Layers</div></div>
+  <div class="s-card"><div class="num">4</div><div class="lbl">SCADA Protocols<br>Modbus·DNP3·IEC-104·61850</div></div>
+  <div class="s-card"><div class="num">3</div><div class="lbl">Modbus Types<br>RTU · ASCII · TCP</div></div>
+  <div class="s-card"><div class="num">4</div><div class="lbl">DNP3 Classes<br>Priority Events</div></div>
+  <div class="s-card"><div class="num">3</div><div class="lbl">IEC 61850 Services<br>MMS · GOOSE · SV</div></div>
+</div>
+
+<hr>
+
+<!-- SECTION 1: Smart Grid -->
+<div class="section" id="s1">
+  <div class="section-title">1. Smart Grid Overview <span>โครงข่ายไฟฟ้าอัจฉริยะ</span></div>
+
+  <div class="card card-accent">
+    <h3>นิยาม Smart Grid</h3>
+    <p><strong>Smart Grid</strong> = Power Grid + Communication/Computer Technology</p>
+    <p>ระบบที่ช่วยตัวเองได้ (self-sufficient) รองรับแหล่งผลิตไฟฟ้าทุกขนาดและทุกประเภท มุ่งสู่ความยั่งยืน (sustainable), ความน่าเชื่อถือ (reliable), ความปลอดภัย (safe) และคุณภาพพลังงาน (quality electricity)</p>
+  </div>
+
+  <h3>เป้าหมายหลัก — 5 Grid Improvements</h3>
+  <div class="grid2">
+    <div class="card">
+      <ol>
+        <li><strong>Real-time Simulation</strong> — จำลองสถานการณ์แบบเรียลไทม์</li>
+        <li><strong>Wide-Area Reliability</strong> — ความน่าเชื่อถือในพื้นที่กว้าง</li>
+        <li><strong>Network Optimization</strong> — ปรับปรุงประสิทธิภาพโครงข่าย</li>
+        <li><strong>Customer Participation</strong> — เปิดให้ผู้ใช้ไฟมีส่วนร่วม</li>
+        <li><strong>Participation in Energy Markets</strong> — เชื่อมกับตลาดพลังงาน</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h4>3 เสาหลักของ Smart Grid</h4>
+      <ol>
+        <li><strong>Digital Technology</strong> — AI, IoT</li>
+        <li><strong>Sensor System</strong> — IED, Smart Meter, PMU</li>
+        <li><strong>Automated Control System</strong> — SCADA, EMS, DMS</li>
+      </ol>
+      <p style="margin-top:0.6rem;color:var(--muted)">ทั้ง 3 เสาเชื่อมกันด้วย <strong>Communication Network Backbone</strong></p>
+    </div>
+  </div>
+
+  <h3>Grid Evolution — Centralized → Distributed</h3>
+  <div class="card card-green">
+    <p>ระบบไฟฟ้าดั้งเดิมเป็น <strong>Centralized</strong> (ผลิตจาก Power Plant ขนาดใหญ่)</p>
+    <p>Smart Grid รองรับ <strong>Distributed Energy Resources (DERs)</strong>:</p>
+    <ul>
+      <li>V2G (Vehicle-to-Grid) — รถยนต์ไฟฟ้าส่งพลังงานกลับสู่กริด</li>
+      <li>Demand Management — บริหารความต้องการไฟ</li>
+      <li>Microgrid — ระบบไฟฟ้าขนาดเล็กที่ดูแลตัวเองได้</li>
+      <li>Virtual Power Plant — รวม DER หลายจุดเป็นโรงไฟฟ้าเสมือน</li>
+      <li>Bi-directional Power Flow — ไฟไหลได้สองทิศทาง</li>
+    </ul>
+  </div>
+
+  <h3>PEA Smart Grid — 6 Pillars</h3>
+  <div class="grid2">
+    <div>
+      <ol>
+        <li>Core Data Infrastructure</li>
+        <li>Consumer Engagement</li>
+        <li>Renewable Integration</li>
+      </ol>
+    </div>
+    <div>
+      <ol start="4">
+        <li>IT/OT Integration</li>
+        <li>Communication Network</li>
+        <li>EV / Green Buildings</li>
+      </ol>
+    </div>
+  </div>
+
+  <h3>Smart Grid in Transportation</h3>
+  <div class="card">
+    <ul>
+      <li>DC Busbar สำหรับระบบขนส่งไฟฟ้า</li>
+      <li>Battery Storage เชื่อมกับระบบไฟฟ้า</li>
+      <li>Hybrid / Electric Buses</li>
+      <li>Railway 750V DC Traction Power</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 2: Thai Power System -->
+<div class="section" id="s2">
+  <div class="section-title">2. โครงสร้างระบบไฟฟ้าไทย <span>Thai Power System Structure</span></div>
+
+  <table>
+    <tr><th>หน่วยงาน</th><th>แรงดัน (kV)</th><th>บทบาท</th></tr>
+    <tr><td><strong>EGAT</strong></td><td>115 / 230 / 500</td><td>ผลิตและส่งจ่ายไฟฟ้าระดับสูง (Transmission)</td></tr>
+    <tr><td><strong>PEA</strong></td><td>11 / 22 / 33 kV, 400/230 V</td><td>จำหน่ายไฟฟ้าต่างจังหวัด (Distribution)</td></tr>
+    <tr><td><strong>MEA</strong></td><td>12 / 24 kV, 416/240 V</td><td>จำหน่ายไฟฟ้า กทม. (Distribution)</td></tr>
+  </table>
+
+  <div class="card card-warn">
+    <h4>จุดอ่อนของโครงข่ายไทย</h4>
+    <p>ภาคใต้มีเพียง <strong>เส้นทางส่งจ่ายไฟฟ้าเส้นเดียว (Single Transmission Path)</strong> → ความเสี่ยงไฟฟ้าดับสูงมาก เป็นแรงจูงใจหลักในการพัฒนา Smart Grid</p>
+  </div>
+
+  <h3>ASEAN Power Grid</h3>
+  <p>ไทยเป็นส่วนหนึ่งของการเชื่อมต่อโครงข่ายไฟฟ้าอาเซียน (ASEAN Power Grid Interconnection) เพื่อแลกเปลี่ยนพลังงานระหว่างประเทศ</p>
+</div>
+
+<hr>
+
+<!-- SECTION 3: SCADA/EMS/DAS -->
+<div class="section" id="s3">
+  <div class="section-title">3. SCADA · EMS · DAS</div>
+
+  <h3>SCADA — Supervisory Control and Data Acquisition</h3>
+  <div class="card card-accent">
+    <p>ระบบควบคุมและตรวจสอบระบบไฟฟ้าจากระยะไกล ประกอบด้วย 4 องค์ประกอบหลัก:</p>
+    <ol>
+      <li>การควบคุมจากระยะไกล (Remote Control)</li>
+      <li>การตรวจสอบแบบเรียลไทม์ (Real-time Monitoring)</li>
+      <li>การเก็บและวิเคราะห์ข้อมูล (Data Acquisition & Analysis)</li>
+      <li>การแสดงผลผ่าน HMI (Human-Machine Interface)</li>
+    </ol>
+  </div>
+
+  <h4>ข้อดีของ SCADA</h4>
+  <ul>
+    <li>Distributed Architecture — ควบคุมจากศูนย์กลาง</li>
+    <li>ลดความผิดพลาดจากมนุษย์</li>
+    <li>การสื่อสารแบบดิจิทัล (Digital Communication)</li>
+  </ul>
+
+  <h4>องค์ประกอบของ SCADA</h4>
+  <div class="flow">
+    <div class="flow-box">① HMI Dashboard</div>
+    <div class="flow-arrow">↔</div>
+    <div class="flow-box">② IED / RTU / PLC</div>
+    <div class="flow-arrow">↔</div>
+    <div class="flow-box">③ Communication Backbone</div>
+  </div>
+
+  <h3>EMS — Energy Management System</h3>
+  <div class="card card-green">
+    <p>ระบบบริหารพลังงานระดับสูง ใช้งานร่วมกับ SCADA:</p>
+    <ul>
+      <li><strong>Load Forecast</strong> — พยากรณ์ความต้องการใช้ไฟ</li>
+      <li><strong>Economic Dispatch</strong> — จ่ายโหลดประหยัดที่สุด</li>
+      <li><strong>AGC (Automatic Generation Control)</strong> — ควบคุมความถี่อัตโนมัติ</li>
+      <li><strong>Optimal Power Flow (OPF)</strong> — กระแสไหลที่เหมาะสมที่สุด</li>
+      <li><strong>Security Monitoring</strong> — ตรวจสอบความมั่นคง</li>
+    </ul>
+  </div>
+
+  <h3>DAS — Distribution Automation System</h3>
+  <div class="card">
+    <ul>
+      <li>Smart Switch อัตโนมัติ</li>
+      <li>Phasor Measurement Units (PMU)</li>
+      <li>Two-way SCADA Communication</li>
+      <li>ใช้กับระบบจำหน่าย (Distribution Level)</li>
+    </ul>
+  </div>
+
+  <h3>SCADA Communication Flow</h3>
+  <div class="flow">
+    <div class="flow-box">Source (CT/VT)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Transmitter (RTU/IED)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Channel (LAN/Ethernet)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Receiver (NIC)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">SCADA/HMI</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 4: Smart Grid Communication -->
+<div class="section" id="s4">
+  <div class="section-title">4. การสื่อสารใน Smart Grid <span>Communication</span></div>
+
+  <h3>Topology ใน Substation</h3>
+  <div class="grid2">
+    <div class="card card-accent">
+      <h4>Star Topology</h4>
+      <p>อุปกรณ์ทุกตัวเชื่อมตรงสู่ศูนย์กลาง (Hub/Switch)</p>
+      <p><strong>ข้อดี:</strong> ง่ายต่อการจัดการ, แยกปัญหาได้ง่าย</p>
+      <p><strong>ข้อเสีย:</strong> หากศูนย์กลางเสีย ระบบหยุด</p>
+    </div>
+    <div class="card card-accent">
+      <h4>Ring Topology</h4>
+      <p>อุปกรณ์เชื่อมต่อเป็นวงแหวน</p>
+      <p><strong>ข้อดี:</strong> Redundancy สูง, หากสาย 1 เส้นขาดยังทำงานได้</p>
+      <p><strong>ใช้ใน:</strong> IEC 61850 Protection & Control</p>
+    </div>
+  </div>
+
+  <h3>ประโยชน์ของ Communication Network ใน Substation</h3>
+  <ul>
+    <li>Enhanced Communication Stability</li>
+    <li>Real-time Control &amp; Monitoring</li>
+    <li>Reduced Data Loss</li>
+    <li>Foundation for Protection &amp; Control (IEC 61850)</li>
+  </ul>
+
+  <h3>ตัวอย่าง: Differential Protection ผ่าน Communication</h3>
+  <div class="card">
+    <p>Relay ทั้งสองด้านสื่อสารกันผ่าน Channel เพื่อเปรียบเทียบกระแส:</p>
+    <div class="formula">ΔV = VT₁ − VT₂   <span class="comment">// ถ้า ΔV ≠ 0 → Fault detected</span></div>
+    <p>IED Differential Relay ที่ปลายแต่ละด้านตรวจจับ Fault และส่งคำสั่ง Trip</p>
+  </div>
+
+  <h3>5 ขั้นตอนการส่งสัญญาณ/ข้อมูลใน SCADA</h3>
+  <ol>
+    <li><strong>Signal Conversion</strong> — CT/VT → Analog → Digital ผ่าน RTU/IED</li>
+    <li><strong>Encoding &amp; Framing</strong> — Modbus, DNP3, IEC 60870-5-104, IEC 61850</li>
+    <li><strong>Transmission</strong> — LAN, Fiber Optic, Wireless, PLC (Serial หรือ Packet-based)</li>
+    <li><strong>Error Checking &amp; Acknowledgement</strong> — CRC, Parity Bit; ACK/NACK</li>
+    <li><strong>Processing &amp; Visualization</strong> — HMI Workstation</li>
+  </ol>
+</div>
+
+<hr>
+
+<!-- SECTION 5: Communication Channels -->
+<div class="section" id="s5">
+  <div class="section-title">5. ช่องทางการสื่อสาร <span>Communication Channels</span></div>
+
+  <h3>Signal Modulation</h3>
+  <div class="card">
+    <table>
+      <tr><th>ประเภท</th><th>ชื่อเต็ม</th><th>วิธีการ</th></tr>
+      <tr><td><strong>ASK</strong></td><td>Amplitude Shift Keying</td><td>เปลี่ยน <strong>ขนาด</strong> (amplitude)</td></tr>
+      <tr><td><strong>FSK</strong></td><td>Frequency Shift Keying</td><td>เปลี่ยน <strong>ความถี่</strong> (frequency)</td></tr>
+      <tr><td><strong>PSK</strong></td><td>Phase Shift Keying</td><td>เปลี่ยน <strong>เฟส</strong> 180° ต่อ bit</td></tr>
+    </table>
+  </div>
+
+  <h3>Analogue to Digital Conversion (ADC)</h3>
+  <div class="card card-green">
+    <p>CT/VT ส่งสัญญาณ Analog → IED ใช้ <strong>PCM (Pulse Code Modulation)</strong> สุ่มตัวอย่างสัญญาณ Analog ตามช่วงเวลา → แปลงเป็น Binary → ส่งเป็น Bit stream ผ่าน Multi-drop cable → Optical Fibre → Substation Computer</p>
+    <p>Standard: <strong>EIA-232 Asynchronous</strong> bit stream (8-bit encoding)</p>
+  </div>
+
+  <details>
+    <summary>5.1 Power Line Carrier (PLC)</summary>
+    <div class="details-body">
+      <p>ใช้สายส่งไฟฟ้าเป็นตัวกลางในการสื่อสาร ใช้สัญญาณความถี่สูง <strong>30–500 kHz</strong> ซ้อนทับบน AC Power</p>
+      <h4>องค์ประกอบ PLC</h4>
+      <ul>
+        <li>Line Matching Unit (LMU) — คู่สัญญาณเข้าสาย</li>
+        <li>Coupling Capacitor — ส่งผ่านความถี่สูง บล็อก AC 50 Hz</li>
+        <li>Line Trap — วงจร LC resonant, Z → ∞ ที่ความถี่ resonant ป้องกันสัญญาณรั่วเข้าสายอื่น</li>
+        <li>Coaxial Cable — เชื่อมต่ออุปกรณ์ภายในสถานี</li>
+      </ul>
+      <h4>สูตร Line Trap</h4>
+      <div class="formula">Z<sub>LT</sub> = Z<sub>L</sub> ‖ Z<sub>C</sub>   (parallel resonant)
+
+ที่ resonant frequency: Z<sub>LT</sub> → ∞
+<span class="comment">// สัญญาณถูก block ไม่ผ่านเข้า substation อื่น</span>
+
+C = 1 / ((2πf)² × L)</div>
+      <h4>ตัวอย่าง</h4>
+      <div class="formula">f = 100 kHz, L = 0.25 mH
+C = 1 / ((2π × 100×10³)² × 0.25×10⁻³)
+C = 1 / (3.948×10¹¹ × 2.5×10⁻⁴)
+<strong>C ≈ 10.14 nF</strong></div>
+    </div>
+  </details>
+
+  <details>
+    <summary>5.2 Twisted Pair Cable (UTP)</summary>
+    <div class="details-body">
+      <p>สาย Copper 2 เส้นบิดเกลียว ลด Noise จาก Electromagnetic Interference (EMI)</p>
+      <table>
+        <tr><th>Category</th><th>Speed</th><th>ใช้งาน</th></tr>
+        <tr><td>CAT 1–2</td><td>Voice / 4 Mbps</td><td>โทรศัพท์</td></tr>
+        <tr><td>CAT 3</td><td>10 Mbps</td><td>Ethernet เก่า</td></tr>
+        <tr><td>CAT 5 / 5e</td><td>100 Mbps / 1 Gbps</td><td>ที่นิยมมากที่สุด</td></tr>
+        <tr><td>CAT 6 / 6e</td><td>1 Gbps</td><td>Data Center</td></tr>
+        <tr><td>CAT 7 / 7a</td><td>10 Gbps / 1.2 Gbps</td><td>High Speed</td></tr>
+      </table>
+      <p>ใน Substation ใช้ Foil Shielded Cable เพื่อป้องกัน EMI จาก Switchgear</p>
+      <p><strong>DSL</strong> (Digital Subscriber Line) ก็ใช้ Twisted Pair สำหรับ Broadband</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>5.3 Coaxial Cable</summary>
+    <div class="details-body">
+      <p>สาย Copper ชั้นใน + Outer Conductor Shield + Outer Jacket</p>
+      <ul>
+        <li>ลด Radiation Loss และ Skin Effect</li>
+        <li>ป้องกัน Electromagnetic Interference</li>
+        <li>ความเร็วสูงสุด ~10 Mbps ที่ระยะหลายร้อยเมตร</li>
+        <li>ใช้เชื่อม PLC Coupler ภายใน Substation</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>5.4 Optical Fiber</summary>
+    <div class="details-body">
+      <p>สัญญาณแสง ความเร็วสูงมาก ไม่ถูก EMI รบกวน เหมาะมากสำหรับ Substation</p>
+      <h4>3 รูปแบบในระบบไฟฟ้า</h4>
+      <ul>
+        <li><strong>OPGW</strong> (Optical Ground Wire) — Fiber ฝังในสาย Shield/Ground Wire บน Tower</li>
+        <li><strong>Phase Conductor Wrapping</strong> — ม้วนบนสายเฟส</li>
+        <li><strong>ADSS</strong> (All-Dielectric Self-Supporting) — ไม่มีโลหะ รับน้ำหนักตัวเอง</li>
+      </ul>
+      <h4>โครงสร้าง OPGW</h4>
+      <p>Stainless Steel Tube + Optic Fiber + Aluminum Cladding Steel Wire</p>
+      <p>ติดตั้งด้วย: Tension Assembly, Vibration Damper, Suspension Assembly, Joint Box, FDH (Fiber Distribution Hub)</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>5.5 Radio Communication</summary>
+    <div class="details-body">
+      <table>
+        <tr><th>ประเภท</th><th>ย่านความถี่</th><th>ใช้งาน</th></tr>
+        <tr><td>UHF</td><td>300 MHz – 3 GHz</td><td>Multipoint หรือ Point-to-Point</td></tr>
+        <tr><td>Microwave</td><td>3 – 30 GHz</td><td>Long-distance, Line-of-Sight</td></tr>
+        <tr><td>Cellular Mobile</td><td>LTE/5G</td><td>Field equipment, Mobile monitoring</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details>
+    <summary>5.6 Satellite Communication</summary>
+    <div class="details-body">
+      <div class="grid2">
+        <div class="card">
+          <h4>GEO (Geostationary)</h4>
+          <ul>
+            <li>Altitude: 35,786 km</li>
+            <li>Latency: &gt;500 ms</li>
+            <li>ครอบคลุม ~1/3 ของโลก</li>
+            <li>ใช้ใน SCADA ห่างไกลมาก</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>LEO (Low Earth Orbit)</h4>
+          <ul>
+            <li>Altitude: 200 – 3,000 km</li>
+            <li>Latency: &lt;50 ms</li>
+            <li>รองรับ TCP/IP</li>
+            <li>Weather resilience สูงกว่า GEO</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>
+
+<hr>
+
+<!-- SECTION 6: OSI/TCP-IP -->
+<div class="section" id="s6">
+  <div class="section-title">6. OSI Model &amp; TCP/IP <span>โปรโตคอล</span></div>
+
+  <h3>ISO/OSI 7-Layer Model</h3>
+  <table>
+    <tr><th>Layer</th><th>ชื่อ</th><th>หน้าที่</th></tr>
+    <tr><td>7</td><td><strong>Application</strong></td><td>User Interface, File access, Email, Network services</td></tr>
+    <tr><td>6</td><td><strong>Presentation</strong></td><td>Encoding, Decoding, Compression, Encryption</td></tr>
+    <tr><td>5</td><td><strong>Session</strong></td><td>Establish, Manage, Terminate sessions</td></tr>
+    <tr><td>4</td><td><strong>Transport</strong></td><td>End-to-end delivery, Quality monitoring</td></tr>
+    <tr><td>3</td><td><strong>Network</strong></td><td>Routing, IP addressing, Packet forwarding</td></tr>
+    <tr><td>2</td><td><strong>Data Link</strong></td><td>Framing, MAC, Medium Access Control</td></tr>
+    <tr><td>1</td><td><strong>Physical</strong></td><td>Signals, Encoding, Bandwidth, Multiplexing</td></tr>
+  </table>
+
+  <div class="card card-orange">
+    <p><strong>Lower Layers (1-3)</strong>: จัดการส่งสัญญาณจริง (copper, fiber, radio)</p>
+    <p><strong>Middle Layer (4-5)</strong>: แยก application ออกจาก physical transmission</p>
+    <p><strong>Upper Layers (6-7)</strong>: จัดการ "ข้อมูลคืออะไร" ไม่ใช่ "ส่งอย่างไร"</p>
+  </div>
+
+  <h3>TCP/IP Protocol</h3>
+  <div class="card card-accent">
+    <p><strong>TCP/IP</strong> = ชุดโปรโตคอลที่ใช้แพร่หลายที่สุดในโลก ประกอบด้วย 4-5 Layer</p>
+    <div class="flow">
+      <div class="flow-box">Application</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Transport (TCP/UDP)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Internet (IP)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Network Access / Physical</div>
+    </div>
+  </div>
+
+  <h3>IPv4 vs IPv6</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>IPv4</h4>
+      <ul>
+        <li>32-bit address, 4 octets (0–255)</li>
+        <li>Max 4.3 billion addresses</li>
+        <li>Class A/B/C/D/E classification</li>
+        <li>ตัวอย่าง: 192.168.0.1</li>
+        <li><strong>ไม่เพียงพอสำหรับ IoT</strong></li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>IPv6</h4>
+      <ul>
+        <li>128-bit hexadecimal (8 groups × 4 hex)</li>
+        <li>3.4 × 10³⁸ addresses</li>
+        <li>Auto-configuration, IPsec built-in</li>
+        <li>Improved routing efficiency</li>
+        <li><strong>แก้ปัญหา IoT address shortage</strong></li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Smart Grid Communication Architecture</h3>
+  <table>
+    <tr><th>Domain</th><th>ชื่อ</th><th>โปรโตคอล/เทคโนโลยี</th></tr>
+    <tr><td><strong>HAN</strong></td><td>Home Area Network</td><td>Ethernet, Wi-Fi, PLC, ZigBee</td></tr>
+    <tr><td><strong>NAN</strong></td><td>Neighbourhood Area Network</td><td>PLC, DSL, LTE, WiMax, Frame Relay</td></tr>
+    <tr><td><strong>WAN</strong></td><td>Wide Area Network</td><td>MPLS, WiMax, LTE, Frame Relay</td></tr>
+  </table>
+</div>
+
+<hr>
+
+<!-- SECTION 7: IEEE 802 -->
+<div class="section" id="s7">
+  <div class="section-title">7. IEEE 802 &amp; Wireless Standards</div>
+
+  <h3>IEEE 802 Series — LAN Standards</h3>
+  <table>
+    <tr><th>Standard</th><th>ชื่อ</th><th>รายละเอียด</th></tr>
+    <tr><td><strong>IEEE 802.3</strong></td><td>Ethernet</td><td>Wired LAN, 10Mbps–10Gbps; CSMA/CD</td></tr>
+    <tr><td><strong>IEEE 802.11</strong></td><td>Wi-Fi (WLAN)</td><td>CSMA/CA; 802.11a/b/g/n; Wi-Fi Alliance</td></tr>
+    <tr><td><strong>IEEE 802.15.1</strong></td><td>Bluetooth</td><td>Short range, &lt;100m</td></tr>
+    <tr><td><strong>IEEE 802.15.4</strong></td><td>ZigBee / 6LoWPAN</td><td>Low power, Mesh network; Smart Meter, IoT</td></tr>
+    <tr><td><strong>IEEE 802.16</strong></td><td>WiMAX</td><td>Broadband Wireless; long range</td></tr>
+    <tr><td><strong>IEEE P1901</strong></td><td>Power Line Communication</td><td>&gt;100 Mbps physical layer; PLC standard</td></tr>
+  </table>
+
+  <h3>Ethernet Network Devices</h3>
+  <table>
+    <tr><th>อุปกรณ์</th><th>Layer</th><th>หน้าที่</th></tr>
+    <tr><td>Repeater</td><td>Layer 1</td><td>ขยายสัญญาณ (Amplify)</td></tr>
+    <tr><td>Hub</td><td>Layer 1</td><td>Broadcast ไปทุก Port</td></tr>
+    <tr><td>Bridge</td><td>Layer 2</td><td>เชื่อม 2 LAN, ตรวจ MAC Address</td></tr>
+    <tr><td>Switch</td><td>Layer 2</td><td>Multi-port Bridge, ส่งตรงถึงปลายทาง</td></tr>
+    <tr><td>Router</td><td>Layer 3</td><td>เชื่อม LAN–WAN, IP Routing</td></tr>
+  </table>
+
+  <h3>Smart Metering Standards</h3>
+  <div class="grid2">
+    <div class="card card-accent">
+      <h4>IEC 62056</h4>
+      <ul>
+        <li>International standard</li>
+        <li>DLMS/COSEM protocol</li>
+        <li>Open communication systems</li>
+        <li>Globally recognized</li>
+      </ul>
+    </div>
+    <div class="card card-green">
+      <h4>ANSI C12.22</h4>
+      <ul>
+        <li>North American standard</li>
+        <li>Network protocol focused</li>
+        <li>End-to-end security</li>
+        <li>C12.22 Relay + Gateway + Nodes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 8: Modbus -->
+<div class="section" id="s8">
+  <div class="section-title">8. Modbus Protocol</div>
+
+  <div class="card card-orange">
+    <p><strong>Modbus</strong> = โปรโตคอลสื่อสารระดับ Application Layer พัฒนาโดย <strong>Modicon (Schneider Electric)</strong> ปี <strong>1979</strong></p>
+    <p>ใช้แพร่หลายใน SCADA, PLC, RTU, IED, Sensors/Actuators ด้วยความเรียบง่าย (Simple) และเป็น Open Protocol</p>
+  </div>
+
+  <h3>Architecture: Master–Slave (Client–Server)</h3>
+  <div class="flow">
+    <div class="flow-box">SCADA Master</div>
+    <div class="flow-arrow">→ Poll/Request →</div>
+    <div class="flow-box">RTU/PLC (Slave)</div>
+    <div class="flow-arrow">→ Response →</div>
+    <div class="flow-box">SCADA Database</div>
+  </div>
+  <p><strong>หลักสำคัญ:</strong> Slave ไม่ส่งข้อมูลเอง — ต้องรอ Master poll ก่อนเท่านั้น</p>
+
+  <h3>3 ประเภทของ Modbus</h3>
+  <div class="card">
+    <table>
+      <tr><th>ประเภท</th><th>Medium</th><th>ความเร็ว</th><th>ระยะทาง</th><th>จำนวน Device</th></tr>
+      <tr><td><strong>Modbus RTU</strong></td><td>RS-485 / RS-232</td><td>115 kbps</td><td>1,300 m</td><td>1 Master + 31 Slaves</td></tr>
+      <tr><td><strong>Modbus ASCII</strong></td><td>Serial (ASCII char)</td><td>ช้ากว่า RTU</td><td>—</td><td>เหมือน RTU (ล้าสมัย)</td></tr>
+      <tr><td><strong>Modbus TCP</strong></td><td>Ethernet (Port 502)</td><td>10/100Mbps–1Gbps</td><td>UTP 100m / Fiber 2km</td><td>64+ devices</td></tr>
+    </table>
+  </div>
+
+  <h3>Data Model — 4 ประเภท</h3>
+  <table>
+    <tr><th>Type</th><th>Address Range</th><th>Description</th></tr>
+    <tr><td><strong>Coil</strong></td><td>0xxxx / 00001+</td><td>Digital Output (DO) — 1-bit</td></tr>
+    <tr><td><strong>Discrete Input</strong></td><td>1xxxx / 10001+</td><td>Digital Input (DI) — 1-bit</td></tr>
+    <tr><td><strong>Input Register</strong></td><td>3xxxx / 30001+</td><td>Analog Input (AI) — 16-bit Read-only</td></tr>
+    <tr><td><strong>Holding Register</strong></td><td>4xxxx / 40001+</td><td>Analog Output/Memory (AO) — 16-bit R/W</td></tr>
+  </table>
+
+  <h3>Function Codes</h3>
+  <table>
+    <tr><th>Code</th><th>Function</th><th>หมายเหตุ</th></tr>
+    <tr><td>01</td><td>Read Coil</td><td></td></tr>
+    <tr><td>02</td><td>Read Discrete Input</td><td></td></tr>
+    <tr><td><strong>03</strong></td><td><strong>Read Holding Register</strong></td><td><span class="badge b-green">ใช้บ่อยที่สุด</span></td></tr>
+    <tr><td>04</td><td>Read Input Register</td><td></td></tr>
+    <tr><td>05</td><td>Write Single Coil</td><td></td></tr>
+    <tr><td>06</td><td>Write Single Register</td><td></td></tr>
+    <tr><td>16</td><td>Write Multiple Registers</td><td></td></tr>
+  </table>
+
+  <h3>Frame Structure (RTU)</h3>
+  <div class="formula">[Slave ID] [Function Code] [Data (Start Addr + Count)] [CRC]
+
+ตัวอย่าง: <strong>01 03 00 00 00 02 C4 08</strong>
+  01       = Slave ID 1
+  03       = Read Holding Register
+  00 00    = Start Address 0 (Register 40001)
+  00 02    = Read 2 registers
+  C4 08    = CRC (Cyclic Redundancy Check)</div>
+
+  <details>
+    <summary>Modbus Mapping — ตัวอย่าง Substation SCADA</summary>
+    <div class="details-body">
+      <h4>Energy Meter</h4>
+      <table>
+        <tr><th>Register</th><th>Parameter</th><th>Unit</th></tr>
+        <tr><td>40001</td><td>Voltage</td><td>V</td></tr>
+        <tr><td>40002</td><td>Current</td><td>A</td></tr>
+        <tr><td>40003</td><td>Active Power</td><td>kW</td></tr>
+        <tr><td>40004</td><td>Frequency</td><td>Hz</td></tr>
+      </table>
+      <h4>Substation RTU</h4>
+      <table>
+        <tr><th>Signal</th><th>Address</th><th>Description</th><th>Unit</th></tr>
+        <tr><td>Bus Voltage</td><td>40001</td><td>Analog Output/Memory</td><td>kV</td></tr>
+        <tr><td>Line Current</td><td>40002</td><td>Analog Output/Memory</td><td>A</td></tr>
+        <tr><td>Active Power</td><td>40003</td><td>Analog Output/Memory</td><td>MW</td></tr>
+        <tr><td>Breaker Status</td><td>10001</td><td>Discrete Input</td><td>ON/OFF</td></tr>
+        <tr><td>Breaker Command</td><td>00001</td><td>Coil</td><td>Open/Close</td></tr>
+      </table>
+      <h4>SCADA ทำงาน</h4>
+      <div class="formula">SCADA: poll → register 40001
+RTU:   ส่งค่าจาก Memory Map → 230 V
+HMI:   decode → display "Bus Voltage = 230 V"</div>
+    </div>
+  </details>
+
+  <div class="card card-warn">
+    <h4>ข้อจำกัดของ Modbus</h4>
+    <ul>
+      <li>ไม่มี Timestamp</li>
+      <li>ไม่มี Event Reporting (polling-based เท่านั้น)</li>
+      <li>ไม่มี Security</li>
+      <li>จำนวน Device จำกัด (RTU: 1+31 เท่านั้น)</li>
+    </ul>
+    <p>→ ระบบไฟฟ้า Critical ใช้ <strong>DNP3 หรือ IEC 61850</strong> แทน</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 9: DNP3 -->
+<div class="section" id="s9">
+  <div class="section-title">9. DNP3 Protocol</div>
+
+  <div class="card card-accent">
+    <p><strong>DNP3</strong> (Distributed Network Protocol) = โปรโตคอล SCADA สำหรับระบบไฟฟ้าโดยเฉพาะ</p>
+    <p>พัฒนาโดย <strong>Westronic (1993)</strong> → ปัจจุบันดูแลโดย <strong>DNP Users Group</strong> → IEEE Standard: <strong>IEEE 1815-2010</strong></p>
+    <p><strong>กฟภ. (PEA) และ กฟน. (MEA)</strong> ใช้ DNP3 เป็น Protocol หลักในระบบ SCADA ระดับสถานีไฟฟ้า</p>
+  </div>
+
+  <h3>Architecture: Master–Outstation</h3>
+  <div class="grid2">
+    <div>
+      <table>
+        <tr><th>SCADA Term</th><th>DNP3 Term</th></tr>
+        <tr><td>Master</td><td>Control Center</td></tr>
+        <tr><td>Slave</td><td>Outstation (RTU)</td></tr>
+      </table>
+    </div>
+    <div class="card card-green">
+      <h4>จุดเด่นของ DNP3</h4>
+      <p><strong>Outstation สามารถส่ง Event ได้เอง</strong> — ไม่ต้องรอ Master poll</p>
+      <p>ลด Communication Traffic, SCADA รับข้อมูลเร็วกว่า Polling</p>
+    </div>
+  </div>
+
+  <h3>DNP3 Stack Architecture</h3>
+  <table>
+    <tr><th>Layer</th><th>หน้าที่</th><th>รายละเอียด</th></tr>
+    <tr><td><strong>Application</strong></td><td>SCADA data</td><td>Binary/Analog Input, Control Commands, Event Data, <strong>Timestamps</strong></td></tr>
+    <tr><td><strong>Transport</strong></td><td>Segmentation</td><td>Fragmentation, Reassembly, Message Sequencing</td></tr>
+    <tr><td><strong>Data Link</strong></td><td>Error detection</td><td>Frame Formatting, Addressing, CRC</td></tr>
+    <tr><td colspan="2"><strong>Physical Media</strong></td><td>RS-232 / RS-485 / TCP/IP / Ethernet</td></tr>
+  </table>
+
+  <h3>Event Reporting Flow</h3>
+  <div class="flow" style="flex-wrap:wrap;">
+    <div class="flow-box">Field Device (Breaker/Sensor)</div>
+    <div class="flow-arrow">→ Event detected →</div>
+    <div class="flow-box">DNP3 Outstation (buffer)</div>
+    <div class="flow-arrow">→ Notification →</div>
+    <div class="flow-box">SCADA Master</div>
+    <div class="flow-arrow">→ Request data →</div>
+    <div class="flow-box">SCADA DB + HMI</div>
+  </div>
+  <p><strong>ตัวอย่าง Event:</strong> Breaker Trip, Voltage Alarm, Protection Operation</p>
+
+  <h3>DNP3 Classes (Priority System)</h3>
+  <div class="card">
+    <table>
+      <tr><th>Class</th><th>Priority</th><th>ตัวอย่าง</th></tr>
+      <tr><td><strong>Class 1</strong></td><td>High</td><td>Breaker Trip</td></tr>
+      <tr><td><strong>Class 2</strong></td><td>Medium</td><td>Alarm</td></tr>
+      <tr><td><strong>Class 3</strong></td><td>Low</td><td>Status Change</td></tr>
+      <tr><td><strong>Class 0</strong></td><td>Static data</td><td>Measurement Values</td></tr>
+    </table>
+    <p><strong>Polling Order:</strong> Class 1 → Class 2 → Class 3 → Class 0</p>
+    <p><strong>ข้อดี:</strong> ลด bandwidth, รับ Event สำคัญก่อน</p>
+  </div>
+
+  <h3>DNP3 Data Model (Object-based)</h3>
+  <table>
+    <tr><th>Object</th><th>Description</th><th>ตัวอย่าง</th></tr>
+    <tr><td>Binary Input</td><td>Digital status</td><td>Breaker Status (OPEN/CLOSE)</td></tr>
+    <tr><td>Binary Output</td><td>Control</td><td>Breaker Command</td></tr>
+    <tr><td>Analog Input</td><td>Measurement</td><td>Voltage, Current, Power</td></tr>
+    <tr><td>Counter</td><td>Energy counter</td><td>kWh meter</td></tr>
+    <tr><td><strong>Time</strong></td><td><strong>Timestamp</strong></td><td>Millisecond accuracy</td></tr>
+  </table>
+
+  <details>
+    <summary>DNP3 Mapping Example (Substation RTU)</summary>
+    <div class="details-body">
+      <table>
+        <tr><th>Signal</th><th>DNP3 Object</th><th>Index</th></tr>
+        <tr><td>Voltage</td><td>Analog Input</td><td>0</td></tr>
+        <tr><td>Current</td><td>Analog Input</td><td>1</td></tr>
+        <tr><td>Breaker Status</td><td>Binary Input</td><td>0</td></tr>
+        <tr><td>Breaker Command</td><td>Binary Output</td><td>0</td></tr>
+      </table>
+      <p><strong>SCADA อ่านค่า:</strong> Analog Input Index 0 → Voltage = 115 kV</p>
+      <h4>Protocol Conversion (Modbus → DNP3)</h4>
+      <div class="formula">Modbus 40001 (Voltage)  → DNP3 Analog Input Index 0
+Modbus 40002 (Current)  → DNP3 Analog Input Index 1
+Modbus 00001 (Breaker)  → DNP3 Binary Output Index 0</div>
+    </div>
+  </details>
+
+  <h3>DNP3 Frame Structure</h3>
+  <div class="formula">Frame: Start | Length | Control | Destination | Source | CRC | Data
+Physical: RS-232 / RS-485 / Ethernet / TCP/IP</div>
+
+  <div class="card card-green">
+    <h4>DNP3 vs Modbus — ข้อสรุป</h4>
+    <p><strong>Modbus</strong> = Polling Only</p>
+    <p><strong>DNP3</strong> = Polling + <span style="color:var(--accent3)">Event Reporting</span> + <span style="color:var(--accent3)">Timestamp</span> + <span style="color:var(--accent3)">Security (DNP3-SA)</span></p>
+    <p>DNP3 คือหัวใจของ Modern Remote SCADA</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 10: IEC 61850 -->
+<div class="section" id="s10">
+  <div class="section-title">10. IEC 61850</div>
+
+  <div class="card card-purple">
+    <p><strong>IEC 61850</strong> ไม่ใช่แค่โปรโตคอล แต่เป็น <strong>มาตรฐานระบบสถานีไฟฟ้า</strong> ครบถ้วน</p>
+    <p>ใช้ <strong>Ethernet-based Communication</strong> เป็นหลัก, <strong>Object-oriented Data Model</strong>, รองรับ <strong>High-speed Protection Messaging</strong></p>
+    <p>ทำให้อุปกรณ์จากต่าง Vendor ทำงานร่วมกันได้ (Interoperability) — Function-based Standard</p>
+  </div>
+
+  <h3>Data Structure — 4 ระดับ</h3>
+  <div class="card">
+    <ol>
+      <li><strong>Physical Device (IED)</strong> — อุปกรณ์จริงพร้อม Network IP Address</li>
+      <li><strong>Logical Device (LD)</strong> — กลุ่มฟังก์ชัน: Measurements, Protection, Monitoring, Recording</li>
+      <li><strong>Logical Node (LN)</strong> — ฟังก์ชันย่อย: Measurement, Protection functions, Supervisory control</li>
+      <li><strong>Data Object / Data Attribute</strong> — ค่าจริง: Measurands, Settings, Status information, Controllable data</li>
+    </ol>
+  </div>
+
+  <h3>Logical Node ที่สำคัญ</h3>
+  <table>
+    <tr><th>Function</th><th>Logical Node</th><th>ตัวอย่างข้อมูล</th></tr>
+    <tr><td>Circuit Breaker</td><td><strong>XCBR</strong></td><td>XCBR1.Pos.stVal (1=Close, 0=Open)</td></tr>
+    <tr><td>Protection Overcurrent</td><td><strong>PTOC</strong></td><td>Trip signal</td></tr>
+    <tr><td>Measurement</td><td><strong>MMXU</strong></td><td>MMXU1.Voltage, MMXU1.Current</td></tr>
+    <tr><td>Switch Control</td><td><strong>CSWI</strong></td><td>Control command</td></tr>
+  </table>
+
+  <h3>3 Messaging Services ของ IEC 61850</h3>
+  <div class="card">
+    <table>
+      <tr><th>Service</th><th>ใช้สำหรับ</th><th>Latency</th></tr>
+      <tr><td><strong>MMS</strong> (Manufacturing Message Spec)</td><td>SCADA Communication, Monitoring, Data/Control</td><td>Normal</td></tr>
+      <tr><td><strong>GOOSE</strong> (Generic Object-Oriented Substation Event)</td><td>Protection Signaling, Interlocking</td><td><strong>&lt; 4 ms</strong></td></tr>
+      <tr><td><strong>SV</strong> (Sampled Values)</td><td>Current/Voltage Sampling (I/V)</td><td>Very Fast</td></tr>
+    </table>
+  </div>
+
+  <h3>GOOSE — Protection Trip Example</h3>
+  <div class="flow">
+    <div class="flow-box">Protection Relay (PTOC)</div>
+    <div class="flow-arrow">→ Trip Event →</div>
+    <div class="flow-box">GOOSE Message<br>(Multicast Ethernet)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">CB Controller (XCBR)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Breaker OPEN</div>
+  </div>
+  <div class="card card-green">
+    <p>GOOSE = <strong>Multicast Ethernet</strong>, Latency ต่ำมาก (&lt;4ms), <strong>แทนที่ Hardwired Signal</strong> ได้ทั้งหมด</p>
+    <p>IEC 61850 Architecture: Station Bus (MMS) + Process Bus (GOOSE/SV)</p>
+  </div>
+
+  <h3>IEC 61850 Substation Architecture — 3 ระดับ</h3>
+  <table>
+    <tr><th>Level</th><th>ชื่อ</th><th>องค์ประกอบ</th><th>Bus</th></tr>
+    <tr><td>① Station</td><td>Station Level</td><td>SCADA, HMI → Control Center (MPS)</td><td>Station Bus (MMS)</td></tr>
+    <tr><td>② Bay</td><td>Bay Level</td><td>IED Control, Protection, Recording</td><td>Station Bus + Process Bus</td></tr>
+    <tr><td>③ Process</td><td>Process Level</td><td>CT, VT, IED, Breakers, Switches</td><td>Process Bus (GOOSE/SV)</td></tr>
+  </table>
+
+  <h3>IEC 61850 over OSI</h3>
+  <div class="formula">Sampled Values (SV)  → IEC 61850-9-2 + 61850-90-5 → UDP → IP → ISO/IEC 8802-7 Ethernet
+GOOSE              → IEC 61850-90-5 + 61850-8-1          → ISO/IEC 8802-7 Ethernet
+MMS                → IEC 61850-8-1                        → TCP/IP → Ethernet</div>
+
+  <div class="card card-purple">
+    <h4>IEC 61850 ต่างจาก Modbus และ DNP3</h4>
+    <ol>
+      <li>ใช้ <strong>Ethernet-based</strong> Communication</li>
+      <li>ใช้ <strong>Object-oriented Data Model</strong> (Logical Node)</li>
+      <li>รองรับ <strong>High-speed Protection Messaging</strong> (GOOSE &lt;4ms)</li>
+      <li>เป็น <strong>Peer-to-Peer</strong> ไม่ใช่ Master-Slave</li>
+    </ol>
+    <p><strong>สรุป: IEC 61850 = ดิจิทัล Substation Automation &amp; Protection มาตรฐาน</strong></p>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 11: Protocol Comparison -->
+<div class="section" id="s11">
+  <div class="section-title">11. เปรียบเทียบ SCADA Protocols</div>
+
+  <h3>Evolution Timeline</h3>
+  <div class="proto-row">
+    <div class="proto-card" style="border-color:var(--accent2)">
+      <div class="proto-name" style="color:var(--accent2)">Modbus</div>
+      <div class="proto-era">1990s</div>
+    </div>
+    <div class="proto-card" style="border-color:var(--accent3)">
+      <div class="proto-name" style="color:var(--accent3)">DNP3</div>
+      <div class="proto-era">2000s</div>
+    </div>
+    <div class="proto-card" style="border-color:var(--accent)">
+      <div class="proto-name" style="color:var(--accent)">IEC-104</div>
+      <div class="proto-era">2000s</div>
+    </div>
+    <div class="proto-card" style="border-color:var(--purple)">
+      <div class="proto-name" style="color:var(--purple)">IEC 61850</div>
+      <div class="proto-era">Present</div>
+    </div>
+  </div>
+
+  <h3>Feature Comparison Table</h3>
+  <table>
+    <tr><th>Feature</th><th>Modbus</th><th>DNP3</th><th>IEC-104</th><th>IEC 61850</th></tr>
+    <tr><td>Communication</td><td>Polling</td><td>Event + Polling</td><td>Cyclic + Spontaneous</td><td>Peer-to-Peer</td></tr>
+    <tr><td>Data Model</td><td>Register</td><td>Object</td><td>ASDU</td><td>Logical Node</td></tr>
+    <tr><td>Event Reporting</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">มี</span></td><td><span class="badge b-orange">บางส่วน</span></td><td><span class="badge b-green">มี</span></td></tr>
+    <tr><td>Timestamp</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">มี</span></td><td><span class="badge b-green">มี</span></td><td><span class="badge b-green">Very High</span></td></tr>
+    <tr><td>Speed</td><td>ต่ำ</td><td>ปานกลาง</td><td>มี Real-time</td><td><span class="badge b-purple">สูงมาก</span></td></tr>
+    <tr><td>Network</td><td>Serial / TCP/IP</td><td>Serial / TCP/IP</td><td>TCP/IP</td><td><span class="badge b-blue">Ethernet</span></td></tr>
+    <tr><td>Protection</td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-red">ไม่มี</span></td><td><span class="badge b-green">GOOSE</span></td></tr>
+    <tr><td>ระดับ</td><td>Industrial</td><td>Remote SCADA</td><td>National SCADA</td><td>Digital Substation</td></tr>
+    <tr><td>ความซับซ้อน</td><td>ต่ำ</td><td>ต่ำ-กลาง</td><td>ต่ำ</td><td>สูง</td></tr>
+  </table>
+
+  <h3>IEC 60870-5-104 (IEC-104)</h3>
+  <div class="card card-green">
+    <ul>
+      <li>โปรโตคอล SCADA <strong>Real-time บน TCP/IP</strong></li>
+      <li>พัฒนาจาก IEC-101 (serial) → ใช้บน Ethernet ได้</li>
+      <li>โครงสร้าง: <strong>Control Center – RTU</strong></li>
+      <li>ใช้ ASDU (Application Service Data Unit)</li>
+      <li>Cyclic Polling + <strong>Spontaneous Event by Exception</strong></li>
+      <li>ใช้ใน: ยุโรป, เอเชีย, ระบบ SCADA ระดับประเทศ</li>
+      <li><strong>สรุป: IEC-104 = SCADA มาตรฐานสากล บน IP ใช้งานง่าย</strong></li>
+    </ul>
+  </div>
+
+  <h3>Which Protocol to Use?</h3>
+  <div class="card">
+    <ul>
+      <li><span class="badge b-orange">Modbus</span> — Factory automation, Simple field devices, ไม่ต้องการ Event</li>
+      <li><span class="badge b-green">DNP3</span> — Utility distribution/substation ที่ใช้ PEA/MEA, เส้นทาง Radio/Fiber ยาวไกล</li>
+      <li><span class="badge b-blue">IEC-104</span> — National-level SCADA Control Center, Europe/Asia</li>
+      <li><span class="badge b-purple">IEC 61850</span> — Digital Substation, Protection &amp; Automation, High-speed control</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 12: Substation Gateway -->
+<div class="section" id="s12">
+  <div class="section-title">12. Substation Gateway (เกตเวย์ของสถานีไฟฟ้า)</div>
+
+  <div class="card card-accent">
+    <p><strong>Substation Gateway</strong> = Hardware หรือ Software ที่ทำหน้าที่เป็น <strong>ศูนย์กลางการสื่อสารและรวมข้อมูล</strong></p>
+    <p>เชื่อมระหว่างอุปกรณ์ภาคสนาม (IED, Relay, RTU, Meter) กับระบบควบคุมระดับศูนย์ (SCADA/EMS/DMS)</p>
+    <p><strong>สรุป: Gateway = สมองด้านการสื่อสารของสถานีไฟฟ้า</strong></p>
+  </div>
+
+  <h3>หน้าที่หลักของ Substation Gateway</h3>
+  <div class="grid2">
+    <div class="card card-green">
+      <h4>① Protocol Conversion</h4>
+      <p>แปลงโปรโตคอล เช่น IEC 61850 ↔ IEC-104 / DNP3 / Modbus</p>
+    </div>
+    <div class="card card-green">
+      <h4>② Data Concentration &amp; Mapping</h4>
+      <p>รวมข้อมูลจาก IED หลายตัวเป็นจุดข้อมูล SCADA เดียว</p>
+    </div>
+    <div class="card card-green">
+      <h4>③ Event &amp; Timestamp</h4>
+      <p>รองรับ SOE (Sequence of Events) และ Event Buffer</p>
+    </div>
+    <div class="card card-green">
+      <h4>④ Send Control Commands</h4>
+      <p>ส่งคำสั่งควบคุมจาก SCADA ไปยังอุปกรณ์ภาคสนาม</p>
+    </div>
+    <div class="card card-green">
+      <h4>⑤ Cybersecurity</h4>
+      <p>Authentication, Encryption, Firewall (ยามตระเวนเข้าเมือง)</p>
+    </div>
+  </div>
+
+  <h3>Gateway Architecture</h3>
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:0.6rem;">
+    <div class="flow-box" style="background:#1e2236">IED / Relay / Meter (IEC 61850, Modbus, DNP3)</div>
+    <div class="flow-arrow">↓ data ↑ command</div>
+    <div class="flow-box" style="background:#1a3a2a; border-color:var(--accent3)">Substation Gateway (Protocol Conversion + Data Mapping + Security)</div>
+    <div class="flow-arrow">↓ IEC-104 / DNP3 ↑ command</div>
+    <div class="flow-box" style="background:#1e2236">SCADA / EMS / DMS</div>
+  </div>
+
+  <h3>การใช้งานที่พบบ่อย</h3>
+  <ul>
+    <li>สถานีไฟฟ้าระบบส่งจ่ายน้อยขนาดใหญ่</li>
+    <li>Digital Substation (IEC 61850)</li>
+    <li>SCADA ระบบไฟฟ้ารถไฟ (Railway Power SCADA)</li>
+    <li>ศูนย์ควบคุมระบบไฟฟ้า</li>
+  </ul>
+</div>
+
+<hr>
+
+<!-- SECTION 13: Interlocking / SBO -->
+<div class="section" id="s13">
+  <div class="section-title">13. Substation Interlocking &amp; SBO</div>
+
+  <h3>Substation Interlocking (ระบบอินเตอร์ล็อกกิ้ง)</h3>
+  <div class="card card-warn">
+    <p>ระบบที่ <strong>ป้องกันไม่ให้สั่งการอุปกรณ์ผิดลำดับ</strong> เช่น เบรกเกอร์หรือสวิตช์ผิดตำแหน่ง</p>
+    <ul>
+      <li>ไม่ให้เกิดการจ่ายไฟย้อนทิศทางกลับสู่แหล่งจ่ายชุดอื่น</li>
+      <li>ไม่ให้สวิตช์ต่อลงดินในจุดที่ยังมีการจ่ายไฟค้างอยู่ (เกิดลัดวงจรลงดิน)</li>
+      <li>ไม่ให้สวิตช์ DS ปิดวงจรต่อมีโหลด (Arc Flash)</li>
+    </ul>
+    <p>ใช้ <strong>GOOSE ผ่าน IEC 61850</strong> สำหรับ Interlocking ความเร็วสูง (&lt;4 ms)</p>
+  </div>
+
+  <h3>เงื่อนไข Interlocking สำหรับการปิด CB</h3>
+  <div class="card">
+    <ol>
+      <li>Earthing Switch ต้องอยู่ในตำแหน่ง <strong>OPEN</strong></li>
+      <li>Isolator ต้องอยู่ในตำแหน่ง <strong>CLOSE</strong></li>
+      <li>จึงจะ CB ได้รับอนุญาตให้ปิดวงจร (<strong>CLOSE</strong>)</li>
+    </ol>
+  </div>
+
+  <h3>SBO — Select Before Operate</h3>
+  <div class="card card-accent">
+    <p><strong>SBO</strong> = "หลักการสั่งงานสองจังหวะ" เพื่อป้องกันการสั่งผิดอุปกรณ์ในสถานีไฟฟ้าแรงสูง</p>
+    <p>เป็นมาตรฐาน Safety Barrier ในระบบ SCADA/BCU/RTU ของสถานีไฟฟ้าแรงสูงทั่วโลก</p>
+  </div>
+
+  <h3>ขั้นตอน SBO</h3>
+  <div class="grid2">
+    <div class="card card-green">
+      <h4>Step 1: SELECT</h4>
+      <ol>
+        <li>ผู้ปฏิบัติงานเลือกอุปกรณ์ (เช่น Breaker 52-A)</li>
+        <li>ระบบตรวจสอบ Interlocking Logic ทั้งหมด</li>
+        <li>ถ้าผ่าน → "Selected OK" + เปิด Time Window (10–30 วินาที)</li>
+        <li>ถ้าไม่ผ่าน → ปฏิเสธทันที</li>
+      </ol>
+    </div>
+    <div class="card card-orange">
+      <h4>Step 2: OPERATE</h4>
+      <ol>
+        <li>ผู้ปฏิบัติงานกดคำสั่ง (OPEN/CLOSE)</li>
+        <li>ระบบตรวจสอบ Interlock อีกครั้ง (Double Check)</li>
+        <li>ส่งคำสั่งไปยัง BCU/RTU → อุปกรณ์จริง</li>
+        <li>ระบบยืนยันผลลัพธ์ (Command Execution Feedback)</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="card card-warn">
+    <h4>Timeout</h4>
+    <p>ถ้าไม่กด Operate ภายใน 10–30 วินาที → ต้อง Select ใหม่ → ป้องกันการสั่งงานโดยไม่ตั้งใจ</p>
+  </div>
+
+  <h3>ทำไมต้องมี SBO?</h3>
+  <div class="card">
+    <p><strong>สถานีไฟฟ้าแรงสูงมีความเสี่ยงสูง:</strong></p>
+    <ul>
+      <li>อุปกรณ์มีจำนวนมาก, หน้าจอ SCADA มีหลาย Bay</li>
+      <li>ความผิดพลาดเพียงคลิกเดียวอาจทำให้เกิด <strong>Blackout หรืออุบัติเหตุร้ายแรง</strong></li>
+    </ul>
+    <p><strong>SBO ช่วยลด Human Error:</strong></p>
+    <ul>
+      <li>ลดความเสี่ยงการคลิกผิด (ต้อง "เลือกก่อน → สั่งทีหลัง")</li>
+      <li>บังคับผู้ปฏิบัติงานตรวจสอบชื่ออุปกรณ์</li>
+      <li>ระบบตรวจสอบ Interlock ก่อนส่งคำสั่ง</li>
+      <li>ป้องกัน Double Command (Timeout ป้องกัน)</li>
+      <li>ป้องกันการสั่งงานโดยไม่ตั้งใจ</li>
+    </ul>
+  </div>
+
+  <h3>ถ้าไม่มี SBO — ผลที่ตามมา</h3>
+  <div class="card card-warn">
+    <ul>
+      <li><strong>Mis-operation:</strong> ตั้งใจเปิด 52-A แต่เผลอคลิก 52-B → อาจหลุด Feeder ทั้งหมด</li>
+      <li><strong>DS Opened/Closed Live (อันตรายมาก):</strong> Disconnect ต้อง ไม่ถูกเปิด/ปิดขณะมีไฟ → Arc Flash รุนแรง, อุปกรณ์เสียหาย</li>
+      <li><strong>Grounding Switch Error:</strong> ปิด Grounding Switch ขณะมีไฟ → Short Circuit ทันที</li>
+      <li><strong>Backfeed ไม่ถูกตรวจจับ:</strong> คิดว่า Bus ดับแล้วแต่ยังมีกระแสย้อน → อันตรายถึงชีวิต</li>
+      <li><strong>Wrong Switching Sequence:</strong> ปิด CB ก่อน Disconnect, เปิด Bus Tie ผิดเวลา</li>
+    </ul>
+  </div>
+
+  <h3>SBO Interlocking Conditions Check</h3>
+  <div class="card card-green">
+    <p>เมื่อผู้ปฏิบัติงานกด Select ระบบจะตรวจสอบ:</p>
+    <ul>
+      <li>Breaker อยู่ในสถานะที่อนุญาต</li>
+      <li>Disconnect (DS) อยู่ตำแหน่งที่ถูกต้อง</li>
+      <li>Grounding Switch ต้องเปิด (OPEN)</li>
+      <li>ไม่มีการจ่ายไฟย้อน (no backfeed)</li>
+      <li>ไม่มีแรงดันตกค้าง</li>
+      <li>ไม่มีคำสั่งอื่นที่ Active อยู่</li>
+      <li>ไม่มี Local Control Override (Local Switch)</li>
+    </ul>
+    <p>ถ้าเงื่อนไขใดไม่ผ่าน → Select ไม่สำเร็จ → คำสั่งไม่ถูกส่งไปอุปกรณ์จริง</p>
+  </div>
+
+  <h3>BCU — Bay Control Unit</h3>
+  <p>BCU ทำหน้าที่รับคำสั่ง SBO จาก SCADA, ตรวจสอบ Interlock ที่ Bay Level และส่งคำสั่งไปยังอุปกรณ์จริงใน Substation</p>
+</div>
+
+<hr>
+
+<!-- SECTION 14: Umphang EMS -->
+<div class="section" id="s14">
+  <div class="section-title">14. กรณีศึกษา: สถานีไฟฟ้าอุ้มผาง กฟภ. <span>Umphang Substation EMS</span></div>
+
+  <div class="card card-accent">
+    <p>สถานีไฟฟ้าอุ้มผาง จังหวัดตาก ของ <strong>กฟภ. (PEA)</strong> เป็นตัวอย่างระบบ Microgrid ห่างไกลที่ใช้:</p>
+    <ul>
+      <li>BESS (Battery Energy Storage System)</li>
+      <li>Diesel Generator</li>
+      <li>EMS Controller + Substation Gateway ในโรงพัฒนา (In-House Software)</li>
+      <li>SCADA Center N2</li>
+    </ul>
+  </div>
+
+  <h3>โครงสร้างสถานีไฟฟ้าทั่วไป</h3>
+  <div class="flow" style="flex-direction:column; align-items:flex-start;">
+    <div class="flow-box">PEA HV Grid (จากสถานีไฟฟ้าแรงสูงใกล้เคียง)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box">บัสบาร์ของสถานีไฟฟ้าเป้าหมาย (22 kV)</div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-box">FRTU (Feeder Remote Terminal Unit) → RCS, BESS, Diesel Gen</div>
+    <div class="flow-arrow">↑↓ Network</div>
+    <div class="flow-box">EMS-SCADA → Gateway → Inhouse Software → SCADA Center</div>
+  </div>
+
+  <h3>Power Balancing — Load-Frequency Control ในระดับ Microgrid</h3>
+  <div class="card card-green">
+    <p>EMS Controller บริหารสมดุลพลังงาน:</p>
+    <div class="formula">P_D (Demand) = P_Gen (Diesel) + P_B (BESS) ± P_INC (Incoming from Grid)
+V_S (Bus Voltage) ตรวจสอบผ่าน Meter
+CB ควบคุมการเชื่อมต่อ Incoming Line</div>
+  </div>
+
+  <h3>3-Layer EMS Architecture</h3>
+  <table>
+    <tr><th>Layer</th><th>ชื่อ</th><th>หน้าที่</th><th>กฎ</th></tr>
+    <tr><td>Top</td><td>EMS Controller</td><td>ควบคุมและจัดการพลังงานสถานี</td><td>—</td></tr>
+    <tr><td>Middle</td><td>Substation Gateway (SG) + Interlocking Engine (ILE)</td><td>Protocol Bridge + Safety Gatekeeper</td><td><strong>ALL commands pass through ILE</strong></td></tr>
+    <tr><td>Bottom</td><td>Field Devices</td><td>RTU, IED, Breakers, Meters</td><td><strong>ALL data passes through SG</strong></td></tr>
+  </table>
+
+  <h3>Interlocking Engine (ILE)</h3>
+  <div class="card card-warn">
+    <p>ILE = ตัวประสานสัมพันธ์ร่วม (Safety Gatekeeper)</p>
+    <ul>
+      <li>ตรวจสอบและทนทานให้แน่ใจก่อนส่งไปปฏิบัติจริง</li>
+      <li>คำสั่งทุกอย่างต้องผ่าน ILE เสมอ</li>
+      <li>ILE เข้ามาคั่นการไหลของคำสั่งในทิศทางนี้</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<!-- SECTION 15: SCADA Mapping -->
+<div class="section" id="s15">
+  <div class="section-title">15. SCADA Data Mapping System</div>
+
+  <div class="card card-purple">
+    <p><strong>Mapping Point</strong> = การจับคู่ระหว่าง "ค่าจริงจากอุปกรณ์ภาคสนาม" กับ "Tag/Index ที่ระบบ SCADA ใช้แสดงผล"</p>
+    <p>เช่น "ค่าจาก Address 40001 = Tag 'substation bus voltage phase A @ NM2' ใน SCADA index 26"</p>
+  </div>
+
+  <h3>SCADA Data Flow Architecture</h3>
+  <div class="flow">
+    <div class="flow-box">Modbus/DNP3 RTU (TCP) Client<br><small>polling RTU data</small></div>
+    <div class="flow-arrow">→ (index) →</div>
+    <div class="flow-box">source_mapping.csv<br><small>mapping table</small></div>
+    <div class="flow-arrow">→ (northindex) →</div>
+    <div class="flow-box">SCADA Outstation<br>(AI / BI index)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">SCADA Center</div>
+  </div>
+  <div class="formula">CB = 1 → ON (Closed)
+CB = 0 → OFF (Open)
+Index 5 = Bus voltage line 1 (AI)</div>
+
+  <h3>Mapping Tables — Umphang Substation</h3>
+
+  <details open>
+    <summary>DNP3 RTU Groups</summary>
+    <div class="details-body">
+      <table>
+        <tr><th>RTU</th><th>Function</th><th>Signal</th><th>Type</th><th>Source Index</th><th>SCADA Northindex</th></tr>
+        <tr><td>RTU01</td><td>INC (Interconnection)</td><td>INC_IA, IB, IC, P, Q</td><td>AI</td><td>0–4</td><td>AI 0–4</td></tr>
+        <tr><td>RTU01</td><td>INC</td><td>INC_STATUS</td><td>BI</td><td>0</td><td>BI 0</td></tr>
+        <tr><td>RTU02</td><td>CB1</td><td>CB1_IA, IB, IC, P, Q</td><td>AI</td><td>0–4</td><td>AI 5–9</td></tr>
+        <tr><td>RTU02</td><td>CB1</td><td>CB1_STATUS</td><td>BI</td><td>0</td><td>BI 1</td></tr>
+        <tr><td>RTU03</td><td>CB4</td><td>CB4_IA, IB, IC, P, Q</td><td>AI</td><td>0–4</td><td>AI 10–14</td></tr>
+        <tr><td>RTU03</td><td>CB4</td><td>CB4_STATUS</td><td>BI</td><td>0</td><td>BI 2</td></tr>
+        <tr><td>RTU04</td><td>CB5</td><td>CB5_IA, IB, IC, P, Q</td><td>AI</td><td>0–4</td><td>AI 15–19</td></tr>
+        <tr><td>RTU04</td><td>CB5</td><td>CB5_STATUS</td><td>BI</td><td>0</td><td>BI 3</td></tr>
+        <tr><td>RTU_BUS</td><td>Bus Voltage</td><td>BUS_VA, VB, VC</td><td>AI</td><td>0–2</td><td>AI 20–22</td></tr>
+        <tr><td>RTU_ALM</td><td>Alarm/Derived</td><td>BUS_UV_ALM, BUS_OV_ALM, FREQ_DRV_ALM, BUS_HEALTHY</td><td>BI</td><td>—</td><td>BI 200–203</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <details>
+    <summary>Modbus TCP Groups</summary>
+    <div class="details-body">
+      <table>
+        <tr><th>Device</th><th>Function</th><th>Signal</th><th>Modbus Addr</th><th>Type</th><th>SCADA AI</th><th>SCADA BI</th></tr>
+        <tr><td>MB06</td><td>CB2</td><td>CB2_IA, IB, IC, P, Q</td><td>IR 0, 2, 4, 6, 8</td><td>AI</td><td>100–104</td><td>—</td></tr>
+        <tr><td>MB06</td><td>CB2</td><td>CB2_STATUS</td><td>DI 0</td><td>BI</td><td>—</td><td>100</td></tr>
+        <tr><td>MB07</td><td>CB3</td><td>CB3_IA, IB, IC, P, Q</td><td>IR 0, 2, 4, 6, 8</td><td>AI</td><td>105–109</td><td>—</td></tr>
+        <tr><td>MB07</td><td>CB3</td><td>CB3_STATUS</td><td>DI 0</td><td>BI</td><td>—</td><td>101</td></tr>
+        <tr><td>MBT400</td><td>CB6</td><td>CB6_IA, IB, IC, P, Q</td><td>IR 0, 2, 4, 6, 8</td><td>AI</td><td>110–114</td><td>—</td></tr>
+        <tr><td>MBT400</td><td>CB6</td><td>CB6_STATUS</td><td>DI 0</td><td>BI</td><td>—</td><td>102</td></tr>
+      </table>
+    </div>
+  </details>
+
+  <h3>SCADA System Index Summary</h3>
+  <div class="grid2">
+    <div class="card">
+      <h4>Analog Input (AI)</h4>
+      <table>
+        <tr><th>Index</th><th>Source</th><th>Function</th></tr>
+        <tr><td>0–4</td><td>DNP3</td><td>INC</td></tr>
+        <tr><td>5–9</td><td>DNP3</td><td>OUT_01 (CB1)</td></tr>
+        <tr><td>10–14</td><td>DNP3</td><td>OUT_04 (CB4)</td></tr>
+        <tr><td>15–19</td><td>DNP3</td><td>OUT_05 (CB5)</td></tr>
+        <tr><td>20–22</td><td>DNP3</td><td>BUS Voltage</td></tr>
+        <tr><td>100–104</td><td>Modbus</td><td>OUT_02 (CB2)</td></tr>
+        <tr><td>105–109</td><td>Modbus</td><td>OUT_03 (CB3)</td></tr>
+        <tr><td>110–114</td><td>Modbus</td><td>OUT_06 (CB6)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h4>Binary Input (BI)</h4>
+      <table>
+        <tr><th>Index</th><th>Source</th><th>Function</th></tr>
+        <tr><td>0</td><td>DNP3</td><td>INC Status</td></tr>
+        <tr><td>1</td><td>DNP3</td><td>CB1 Status</td></tr>
+        <tr><td>2</td><td>DNP3</td><td>CB4 Status</td></tr>
+        <tr><td>3</td><td>DNP3</td><td>CB5 Status</td></tr>
+        <tr><td>100</td><td>Modbus</td><td>CB2 Status</td></tr>
+        <tr><td>101</td><td>Modbus</td><td>CB3 Status</td></tr>
+        <tr><td>102</td><td>Modbus</td><td>CB6 Status</td></tr>
+        <tr><td>200–203</td><td>Alarm/Derived</td><td>UV/OV/Freq Alarms, Healthy</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>SCADA Protocol Address Mapping — สรุป</h3>
+  <div class="card card-accent">
+    <table>
+      <tr><th>Protocol</th><th>Source</th><th>Function</th><th>SCADA Index</th></tr>
+      <tr><td>DNP3</td><td>RTU01</td><td>INC</td><td>AI 0–4, BI 0</td></tr>
+      <tr><td>DNP3</td><td>RTU02</td><td>CB1</td><td>AI 5–9, BI 1</td></tr>
+      <tr><td>DNP3</td><td>RTU03</td><td>CB4</td><td>AI 10–14, BI 2</td></tr>
+      <tr><td>DNP3</td><td>RTU04</td><td>CB5</td><td>AI 15–19, BI 3</td></tr>
+      <tr><td>DNP3</td><td>RTU_BUS</td><td>Bus Voltage</td><td>AI 20–22</td></tr>
+      <tr><td>Modbus</td><td>MB06</td><td>CB2</td><td>AI 100–104, BI 100</td></tr>
+      <tr><td>Modbus</td><td>MB07</td><td>CB3</td><td>AI 105–109, BI 101</td></tr>
+      <tr><td>Modbus</td><td>MBT400</td><td>CB6</td><td>AI 110–114, BI 102</td></tr>
+      <tr><td>Alarm</td><td>RTU_ALM</td><td>Alarms/Derived</td><td>BI 200–203</td></tr>
+    </table>
+  </div>
+</div>
+
+<footer>
+  <p>บทที่ 9 — Smart Grid and Digital Substation | Suranaree University of Technology</p>
+  <p style="margin-top:0.4rem;">EEN × PowerPlant Final | Generated from 159 lecture slides</p>
+</footer>
+
+</body>
+</html>
