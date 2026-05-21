@@ -154,6 +154,7 @@
   <a href="#s13">Interlocking/SBO</a>
   <a href="#s14">Umphang EMS</a>
   <a href="#s15">Mapping</a>
+  <a href="#exam" style="color:#f74f4f;font-weight:700;">★ แนวสอบ</a>
 </nav>
 
 <div class="exam-box">
@@ -227,6 +228,177 @@
     <strong>⚠ เน้นท่อง:</strong> ตารางเปรียบเทียบ Modbus / DNP3 / IEC-104 / IEC 61850 (Event, Timestamp, Network, Speed, Protection) · ขั้นตอน SBO · หน้าที่ Gateway · ตัวย่อทั้งหมด · DNP3 Class 0–3 · GOOSE &lt;4ms
   </div>
 </div>
+
+<!-- FULL EXAM SECTION -->
+<div id="exam" class="section" style="padding-top:1.5rem;">
+  <div class="section-title" style="border-color:#f74f4f;color:#f74f4f;">★ แนวข้อสอบปลายภาค — บทที่ 9 (Smart Grid) <span>15 ข้อ ปรนัย</span></div>
+
+  <h3 style="color:#f74f4f;">ตารางเปรียบเทียบโปรโตคอล ★★★ (ออกสอบแน่นอน)</h3>
+  <div style="overflow-x:auto;">
+  <table>
+    <tr>
+      <th>หัวข้อ</th>
+      <th style="color:#90cdf4;">Modbus</th>
+      <th style="color:#68d391;">DNP3</th>
+      <th style="color:#f6ad55;">IEC-104</th>
+      <th style="color:#c4b5fd;">IEC 61850</th>
+    </tr>
+    <tr><td>ยุค</td><td>1979</td><td>1993</td><td>2000s</td><td>ปัจจุบัน</td></tr>
+    <tr><td>Architecture</td><td>Master–Slave</td><td>Master–Outstation</td><td>Control–RTU</td><td>Peer-to-Peer</td></tr>
+    <tr><td>การสื่อสาร</td><td>Polling only</td><td>Poll + <strong>Event</strong></td><td>Cyclic + Spontaneous</td><td>Peer-to-peer</td></tr>
+    <tr><td>Data Model</td><td>Register</td><td><strong>Object</strong></td><td>ASDU</td><td><strong>Logical Node</strong></td></tr>
+    <tr><td>Event Report</td><td style="color:#f74f4f;">❌</td><td style="color:#68d391;">✅</td><td>บางส่วน</td><td style="color:#68d391;">✅</td></tr>
+    <tr><td>Timestamp</td><td style="color:#f74f4f;">❌</td><td style="color:#68d391;">✅ ms</td><td style="color:#68d391;">✅</td><td style="color:#68d391;">✅ Very High</td></tr>
+    <tr><td>Network</td><td>Serial / TCP</td><td>Serial / TCP</td><td><strong>TCP/IP</strong></td><td><strong>Ethernet</strong></td></tr>
+    <tr><td>Protection Msg</td><td style="color:#f74f4f;">❌</td><td style="color:#f74f4f;">❌</td><td style="color:#f74f4f;">❌</td><td style="color:#68d391;"><strong>GOOSE &lt;4ms</strong></td></tr>
+    <tr><td>Security</td><td style="color:#f74f4f;">❌</td><td>DNP3-SA</td><td>บางส่วน</td><td style="color:#68d391;">มี</td></tr>
+    <tr><td>ใช้ใน</td><td>Factory / PLC</td><td>PEA / MEA SCADA</td><td>Europe / Asia national</td><td>Digital Substation</td></tr>
+  </table>
+  </div>
+
+  <div class="grid2" style="margin-top:1.5rem;">
+    <!-- Modbus -->
+    <div>
+      <h3>Modbus — Data Types &amp; Function Codes</h3>
+      <table>
+        <tr><th>Type</th><th>Address</th><th>คำอธิบาย</th></tr>
+        <tr><td>Coil</td><td>0xxxx</td><td>Digital Output (DO) R/W</td></tr>
+        <tr><td>Discrete Input</td><td>1xxxx</td><td>Digital Input (DI) RO</td></tr>
+        <tr><td>Input Register</td><td>3xxxx</td><td>Analog Input 16-bit RO</td></tr>
+        <tr><td><strong>Holding Register</strong></td><td>4xxxx</td><td>Analog Output / Memory R/W</td></tr>
+      </table>
+      <div class="card card-warn" style="margin-top:0.6rem;font-size:0.85rem;">
+        <strong>Function Codes:</strong><br>
+        01=Read Coil &nbsp;|&nbsp; 02=Read DI &nbsp;|&nbsp; <span style="color:#f7a94f;font-weight:700;">03=Read HR ★</span><br>
+        04=Read IR &nbsp;|&nbsp; 05=Write Coil &nbsp;|&nbsp; 06=Write Reg &nbsp;|&nbsp; 16=Write Multiple<br><br>
+        <strong>3 ประเภท:</strong> RTU (115 kbps / 1300 m) · ASCII · TCP (Port 502)<br>
+        <strong>ข้อจำกัด:</strong> ไม่มี Event, Timestamp, Security
+      </div>
+    </div>
+
+    <!-- DNP3 -->
+    <div>
+      <h3>DNP3 — Event Classes</h3>
+      <table>
+        <tr><th>Class</th><th>Priority</th><th>ตัวอย่าง</th></tr>
+        <tr><td style="color:#f74f4f;font-weight:700;">Class 1</td><td>High</td><td>Breaker Trip</td></tr>
+        <tr><td style="color:#f6ad55;font-weight:700;">Class 2</td><td>Medium</td><td>Alarm</td></tr>
+        <tr><td style="color:#90cdf4;">Class 3</td><td>Low</td><td>Status Change</td></tr>
+        <tr><td style="color:#8892a4;">Class 0</td><td>Static</td><td>Measurement</td></tr>
+      </table>
+      <div class="card card-accent" style="margin-top:0.6rem;font-size:0.85rem;">
+        <strong>Poll Order:</strong> Class 1 → 2 → 3 → 0<br>
+        <strong>Standard:</strong> IEEE 1815-2010 &nbsp;|&nbsp; <strong>Origin:</strong> Westronic 1993<br>
+        <strong>ใช้ใน:</strong> PEA / MEA SCADA<br>
+        <strong>Object Types:</strong> Binary Input · Analog Input · Counter · Time Sync
+      </div>
+    </div>
+  </div>
+
+  <!-- IEC 61850 -->
+  <h3 style="margin-top:1.5rem;">IEC 61850 — Services &amp; Logical Nodes</h3>
+  <div class="grid2">
+    <table>
+      <tr><th>Service</th><th>ใช้สำหรับ</th><th>Latency</th></tr>
+      <tr><td><strong>MMS</strong></td><td>SCADA monitoring / control</td><td>Normal</td></tr>
+      <tr><td><strong style="color:#f74f4f;">GOOSE</strong></td><td>Protection signaling (แทน hardwired)</td><td style="color:#f74f4f;font-weight:700;">&lt; 4 ms</td></tr>
+      <tr><td><strong>SV</strong></td><td>Current / Voltage sampling</td><td>Very Fast</td></tr>
+    </table>
+    <table>
+      <tr><th>Logical Node</th><th>ความหมาย</th></tr>
+      <tr><td><strong>XCBR</strong></td><td>Circuit Breaker</td></tr>
+      <tr><td><strong>PTOC</strong></td><td>Overcurrent Protection</td></tr>
+      <tr><td><strong>MMXU</strong></td><td>Measurement Unit</td></tr>
+      <tr><td><strong>CSWI</strong></td><td>Switch Controller</td></tr>
+    </table>
+  </div>
+  <div class="card card-purple" style="font-size:0.85rem;">
+    <strong>โครงสร้าง 4 ระดับ:</strong> Physical Device → Logical Device (LD) → Logical Node (LN) → Data Attribute<br>
+    <strong>สถาปัตยกรรม Substation:</strong> Station Level · Bay Level · Process Level<br>
+    <strong>จุดเด่น:</strong> Interoperability (ต่างยี่ห้อคุยกันได้), Object-Oriented, Ethernet-based
+  </div>
+
+  <!-- SBO -->
+  <h3 style="margin-top:1.5rem;color:#f74f4f;">SBO — Select Before Operate (Two-Step Command)</h3>
+  <div class="card card-warn">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+      <div>
+        <strong>ขั้นตอน:</strong>
+        <ol style="margin-top:0.5rem;padding-left:1.3rem;font-size:0.9rem;">
+          <li><strong>SELECT</strong> → เลือกอุปกรณ์ → ระบบตรวจ Interlock → "Selected OK" + เปิด Timer (10–30 s)</li>
+          <li><strong>OPERATE</strong> → กดคำสั่ง → ตรวจ Interlock อีกครั้ง → ส่งคำสั่ง → Feedback</li>
+          <li><strong>TIMEOUT</strong> → ถ้าเกินเวลา → ต้อง Select ใหม่ตั้งแต่ต้น</li>
+        </ol>
+      </div>
+      <div>
+        <strong>SBO ช่วยลด Human Error อย่างไร:</strong>
+        <ul style="margin-top:0.5rem;font-size:0.9rem;">
+          <li>ป้องกันคลิกผิด Device (บังคับเห็นชื่อชัดเจน)</li>
+          <li>ระบบตรวจ Interlock Logic ก่อนทุกครั้ง</li>
+          <li>Timeout ป้องกัน Double Command</li>
+          <li>ถ้าไม่มี SBO → DS ปิดขณะมีไฟ → <strong>Arc Flash, Blackout</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:0.6rem;font-size:0.85rem;color:#a0aec0;"><strong>BCU = Bay Control Unit</strong> — รับคำสั่ง SBO จาก SCADA ตรวจ Interlock ที่ Bay Level</div>
+  </div>
+
+  <!-- Gateway -->
+  <h3 style="margin-top:1.5rem;">Substation Gateway — หน้าที่ 5 ประการ</h3>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.7rem;margin-bottom:1rem;">
+    <div class="card card-accent" style="text-align:center;padding:0.8rem;">
+      <div style="font-size:1.4rem;">🔄</div>
+      <div style="font-weight:700;font-size:0.85rem;margin:0.3rem 0;">Protocol Conversion</div>
+      <div style="font-size:0.78rem;color:#8892a4;">IEC 61850 ↔ IEC-104 / DNP3 / Modbus</div>
+    </div>
+    <div class="card card-accent" style="text-align:center;padding:0.8rem;">
+      <div style="font-size:1.4rem;">📦</div>
+      <div style="font-weight:700;font-size:0.85rem;margin:0.3rem 0;">Data Concentration</div>
+      <div style="font-size:0.78rem;color:#8892a4;">รวมข้อมูล IED → SCADA</div>
+    </div>
+    <div class="card card-accent" style="text-align:center;padding:0.8rem;">
+      <div style="font-size:1.4rem;">⏱</div>
+      <div style="font-weight:700;font-size:0.85rem;margin:0.3rem 0;">Event &amp; Timestamp</div>
+      <div style="font-size:0.78rem;color:#8892a4;">SOE, Event Buffer</div>
+    </div>
+    <div class="card card-accent" style="text-align:center;padding:0.8rem;">
+      <div style="font-size:1.4rem;">🎮</div>
+      <div style="font-weight:700;font-size:0.85rem;margin:0.3rem 0;">Control Command</div>
+      <div style="font-size:0.78rem;color:#8892a4;">ส่งคำสั่ง SCADA → Field</div>
+    </div>
+    <div class="card card-accent" style="text-align:center;padding:0.8rem;">
+      <div style="font-size:1.4rem;">🔐</div>
+      <div style="font-weight:700;font-size:0.85rem;margin:0.3rem 0;">Cybersecurity</div>
+      <div style="font-size:0.78rem;color:#8892a4;">Authentication, Encryption, Firewall</div>
+    </div>
+  </div>
+
+  <!-- คำย่อ -->
+  <h3>คำย่อสำคัญ บทที่ 9</h3>
+  <div class="grid2">
+    <table>
+      <tr><th>ย่อ</th><th>ชื่อเต็ม</th></tr>
+      <tr><td><strong>SCADA</strong></td><td>Supervisory Control and Data Acquisition</td></tr>
+      <tr><td><strong>EMS</strong></td><td>Energy Management System</td></tr>
+      <tr><td><strong>DAS</strong></td><td>Distribution Automation System</td></tr>
+      <tr><td><strong>HMI</strong></td><td>Human Machine Interface</td></tr>
+      <tr><td><strong>IED</strong></td><td>Intelligent Electronic Device</td></tr>
+      <tr><td><strong>RTU</strong></td><td>Remote Terminal Unit</td></tr>
+      <tr><td><strong>BCU</strong></td><td>Bay Control Unit</td></tr>
+    </table>
+    <table>
+      <tr><th>ย่อ</th><th>ชื่อเต็ม</th></tr>
+      <tr><td><strong>GOOSE</strong></td><td>Generic Object-Oriented Substation Event</td></tr>
+      <tr><td><strong>MMS</strong></td><td>Manufacturing Message Specification</td></tr>
+      <tr><td><strong>SV</strong></td><td>Sampled Values</td></tr>
+      <tr><td><strong>SBO</strong></td><td>Select Before Operate</td></tr>
+      <tr><td><strong>PLC</strong></td><td>Power Line Carrier (30–500 kHz)</td></tr>
+      <tr><td><strong>OPGW</strong></td><td>Optical Ground Wire</td></tr>
+      <tr><td><strong>PCM</strong></td><td>Pulse Code Modulation</td></tr>
+    </table>
+  </div>
+</div>
+<!-- END FULL EXAM SECTION -->
 
 <div class="hero">
   <h1>บทที่ 9</h1>
