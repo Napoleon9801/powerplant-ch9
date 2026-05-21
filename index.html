@@ -15,6 +15,22 @@
   body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; font-size: 15px; line-height: 1.7; }
   a { color: var(--accent); text-decoration: none; }
 
+  /* EXAM BOX */
+  .exam-box { background: #1a1500; border: 2px solid #f7a94f; border-radius: 12px;
+              max-width: 960px; margin: 1.5rem auto 0; padding: 1.2rem 1.5rem; }
+  .exam-box .exam-title { font-size: 1rem; font-weight: 800; color: #f7a94f;
+                           display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem; }
+  .exam-box .exam-title .badge-pts { background: #f7a94f; color: #000; font-size: 0.78rem;
+                                      font-weight: 800; padding: 0.15rem 0.6rem; border-radius: 20px; }
+  .exam-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem; }
+  .exam-topic { background: #22201a; border: 1px solid #3a3010; border-radius: 8px; padding: 0.9rem 1rem; }
+  .exam-topic .t-head { font-weight: 700; font-size: 0.82rem; color: #f7a94f; margin-bottom: 0.4rem; }
+  .exam-topic ul { padding-left: 1.2rem; font-size: 0.82rem; color: #c8b97a; }
+  .exam-topic ul li { margin-bottom: 0.2rem; }
+  .exam-hint { margin-top: 0.8rem; background: #1e1000; border-left: 3px solid #f74f4f;
+               border-radius: 0 6px 6px 0; padding: 0.6rem 1rem; font-size: 0.83rem; color: #fc8181; }
+  .exam-hint strong { color: #f7a94f; }
+
   /* NAV */
   nav { position: sticky; top: 0; z-index: 100; background: #0d1020ee; backdrop-filter: blur(8px);
         border-bottom: 1px solid var(--border); padding: 0 1rem; display: flex; align-items: center;
@@ -139,6 +155,78 @@
   <a href="#s14">Umphang EMS</a>
   <a href="#s15">Mapping</a>
 </nav>
+
+<div class="exam-box">
+  <div class="exam-title">
+    📋 แนวข้อสอบปลายภาค — บทที่ 9 (Smart Grid)
+    <span class="badge-pts">15 ข้อ · ปรนัยล้วน</span>
+  </div>
+  <div class="exam-grid">
+    <div class="exam-topic">
+      <div class="t-head">📖 ความหมาย &amp; ตัวย่อ</div>
+      <ul>
+        <li>Smart Grid คืออะไร, นิยาม</li>
+        <li>SCADA / EMS / DAS / HMI</li>
+        <li>IED / RTU / BCU / PLC</li>
+        <li>GOOSE / MMS / SV / OPGW</li>
+        <li>ACE / FRTU / SBO / PCM</li>
+      </ul>
+    </div>
+    <div class="exam-topic">
+      <div class="t-head">🔌 โปรโตคอล Modbus</div>
+      <ul>
+        <li>Master–Slave architecture</li>
+        <li>3 ประเภท: RTU / ASCII / TCP</li>
+        <li>Data types: Coil / DI / IR / HR</li>
+        <li>Function Code 03 = Read Holding Register ★</li>
+        <li>ข้อจำกัด: ไม่มี Event, Timestamp, Security</li>
+      </ul>
+    </div>
+    <div class="exam-topic">
+      <div class="t-head">📡 DNP3 vs IEC 61850</div>
+      <ul>
+        <li>DNP3: Master–Outstation, Event-based</li>
+        <li>DNP3 Classes 0–3 (High→Low priority)</li>
+        <li>IEC 61850: Peer-to-Peer, Ethernet</li>
+        <li>GOOSE &lt;4ms แทน hardwired signal</li>
+        <li>Logical Node: XCBR / PTOC / MMXU</li>
+      </ul>
+    </div>
+    <div class="exam-topic">
+      <div class="t-head">⚖️ เปรียบเทียบโปรโตคอล</div>
+      <ul>
+        <li>Modbus: ง่าย, ช้า, ไม่มี Event</li>
+        <li>DNP3: Event+Timestamp, PEA/MEA ใช้</li>
+        <li>IEC-104: TCP/IP, national SCADA</li>
+        <li>IEC 61850: Ethernet, GOOSE, ดีที่สุด</li>
+        <li>ข้อดี–ข้อเสียแต่ละระบบ</li>
+      </ul>
+    </div>
+    <div class="exam-topic">
+      <div class="t-head">🔒 SBO — Select Before Operate</div>
+      <ul>
+        <li>คืออะไร: Two-step command</li>
+        <li>Step 1 SELECT → ตรวจ Interlock → OK</li>
+        <li>Step 2 OPERATE → ส่งคำสั่งจริง</li>
+        <li>Timeout → ต้อง Select ใหม่</li>
+        <li>ลด Human Error: คลิกผิด, DS live, Arc Flash</li>
+      </ul>
+    </div>
+    <div class="exam-topic">
+      <div class="t-head">🌐 Gateway หน้าที่</div>
+      <ul>
+        <li>Protocol Conversion (IEC 61850↔DNP3)</li>
+        <li>Data Concentration &amp; Mapping</li>
+        <li>Event &amp; Timestamp (SOE)</li>
+        <li>ส่งคำสั่งควบคุม SCADA → Field</li>
+        <li>Cybersecurity: Auth, Encrypt, Firewall</li>
+      </ul>
+    </div>
+  </div>
+  <div class="exam-hint">
+    <strong>⚠ เน้นท่อง:</strong> ตารางเปรียบเทียบ Modbus / DNP3 / IEC-104 / IEC 61850 (Event, Timestamp, Network, Speed, Protection) · ขั้นตอน SBO · หน้าที่ Gateway · ตัวย่อทั้งหมด · DNP3 Class 0–3 · GOOSE &lt;4ms
+  </div>
+</div>
 
 <div class="hero">
   <h1>บทที่ 9</h1>
